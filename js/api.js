@@ -108,3 +108,19 @@ async function deleteBooking(id) {
         throw new Error("Gagal menghapus booking");
     }
 }
+
+// Ambil token
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+// Cek apakah sudah login
+function isLoggedIn() {
+    return !!getToken();
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
