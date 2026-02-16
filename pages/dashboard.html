@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Room Booking</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <h2>Dashboard User</h2>
+    
+    <p>Selamat datang, <span id="userEmail"></span></p>
+
+    <button onclick="logout()">Logout</button>
+
+    <!--Js-->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        //login
+        requireLogin();
+
+        //isi email
+        document.getElementById("userEmail").innerText = getUserEmail();
+    </script>
+</body>
+</html>
