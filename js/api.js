@@ -19,10 +19,10 @@ async function login(email, password) {
     return await response.json(); // { token: "..." }
 }
 
-// Register
-async function register(email, password) {
+/// Register
+async function register(fullName, email, password) {
     const response = await fetch(
-        `${BASE_URL}/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        `${BASE_URL}/auth/register?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
         {
             method: "POST"
         }
@@ -35,6 +35,7 @@ async function register(email, password) {
 
     return await response.text();
 }
+
 
 
 // BOOKINGS (Butuh Token)
