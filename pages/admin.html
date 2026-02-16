@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Room Booking</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <h2>Admin Panel</h2>
+    
+    <p>Selamat datang Admin, <span id="adminEmail"></span></p>
+
+    <button onclick="logout()">Logout</button>
+
+    <!--Js-->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        //login
+        requireAdmin();
+
+        document.getElementById("adminEmail").innerText = getUserEmail();
+    </script>
+
+</body>
+</html>
