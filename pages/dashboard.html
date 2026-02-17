@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Room Booking</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <h2>Dashboard User</h2>
+
+    <p>Selamat datang, <span id="userEmail"></span></p>
+    <button onclick="logout()">Logout</button>
+
+    <hr>
+
+    <h3>Buat Booking</h3>
+
+    <form id="bookingForm">
+        <input type="text" id="ruangan" placeholder="Nama Ruangan" required>
+
+        <input type="date" id="tanggal" required>
+
+        <label>Jam Mulai</label>
+        <input type="time" id="jamMulai" required>
+
+        <label>Jam Selesai</label>
+        <input type="time" id="jamSelesai" required>
+
+        <button type="submit">Booking</button>
+    </form>
+
+    <p id="bookingMessage"></p>
+
+    <hr>
+
+    <h3>Daftar Booking Saya</h3>
+
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Ruangan</th>
+                <th>Tanggal</th>
+                <th>Jam</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="bookingTable"></tbody>
+    </table>
+
+
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+
+    <script>
+
+    // =======================================
+    // PROTECTION
+    // =======================================
+
+    requireLogin();
+    document.getElementById("userEmail").innerText = getUserEmail();
+
+
+    // =======================================
+    // ELEMENT
+    // =======================================
+
+    const form = document.getElementById("bookingForm");
+    const message = document.getElementById("bookingMessage");
+    const bookingList = document.getElementById("bookingList");
+
+
+    // =======================================
+    // LOAD DATA
+    // =======================================
+
+    loadBookings();
+
+
+    // =======================================
+    // SUBMIT BOOKING
+    // =======================================
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const bookingData = {
+            namaPeminjam: getUserEmail(),
+            ruangan: document.getElementById("ruangan").value,
+            tanggal: document.getElementById("tanggal").value,
+            jamMulai: document.getElementById("jamMulai").value,
+            jamSelesai: document.getElementById("jamSelesai").value
+        };
+
+        try {
+            await createBooking(bookingData);
+
+            message.style.color = "green";
+            message.innerText = "Booking berhasil dibuat!";
+
+            form.reset();
+            loadBookings();
+
+        } catch (error) {
+            message.style.color = "red";
+            message.innerText = error.message;
+        }
+    });
+
+
+    // =======================================
+    // LOAD BOOKINGS
+    // =======================================
+
+    async function loadBookings() {
+        try {
+            const bookings = await getBookings();
+            const table = document.getElementById("bookingTable");
+            table.innerHTML = "";
+
+            const myEmail = getUserEmail();
+
+            bookings
+                .filter(b => b.namaPeminjam === myEmail)
+                .forEach(b => {
+
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${b.ruangan}</td>
+                        <td>${b.tanggal.split("T")[0]}</td>
+                        <td>${b.jamMulai} - ${b.jamSelesai}</td>
+                        <td>${b.status}</td>
+                        <td>${renderCancelButton(b)}</td>
+                    `;
+
+                    table.appendChild(row);
+                });
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
+    function renderCancelButton(booking) {
+
+        if (booking.status !== "Menunggu") {
+            return "-";
+        }
+
+        return `
+            <button onclick="cancelBooking(${booking.id})">
+                Batalkan
+            </button>
+        `;
+    }
+
+    async function cancelBooking(id) {
+
+        if (!confirm("Yakin ingin membatalkan booking ini?")) return;
+
+        try {
+            await deleteBooking(id);
+            alert("Booking berhasil dibatalkan");
+            loadBookings();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    </script>
+
+</body>
+</html>
