@@ -34,8 +34,21 @@
 
 <hr>
 
-<h3>Daftar Booking</h3>
-<ul id="bookingList"></ul>
+<h3>Daftar Booking Saya</h3>
+
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>Ruangan</th>
+            <th>Tanggal</th>
+            <th>Jam</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="bookingTable"></tbody>
+</table>
+
 
 
 <script src="../js/auth.js"></script>
@@ -105,20 +118,57 @@ form.addEventListener("submit", async function (e) {
 async function loadBookings() {
     try {
         const bookings = await getBookings();
+        const table = document.getElementById("bookingTable");
+        table.innerHTML = "";
 
-        bookingList.innerHTML = "";
+        const myEmail = getUserEmail();
 
-        bookings.forEach(b => {
-            const li = document.createElement("li");
+        bookings
+            .filter(b => b.namaPeminjam === myEmail)
+            .forEach(b => {
 
-            li.innerText =
-                `${b.namaPeminjam} | ${b.ruangan} | ${b.tanggal.split("T")[0]} | ${b.jamMulai} - ${b.jamSelesai} | ${b.status}`;
+                const row = document.createElement("tr");
 
-            bookingList.appendChild(li);
-        });
+                row.innerHTML = `
+                    <td>${b.ruangan}</td>
+                    <td>${b.tanggal.split("T")[0]}</td>
+                    <td>${b.jamMulai} - ${b.jamSelesai}</td>
+                    <td>${b.status}</td>
+                    <td>${renderCancelButton(b)}</td>
+                `;
 
-    } catch (error) {
-        console.error(error);
+                table.appendChild(row);
+            });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+function renderCancelButton(booking) {
+
+    if (booking.status !== "Menunggu") {
+        return "-";
+    }
+
+    return `
+        <button onclick="cancelBooking(${booking.id})">
+            Batalkan
+        </button>
+    `;
+}
+
+async function cancelBooking(id) {
+
+    if (!confirm("Yakin ingin membatalkan booking ini?")) return;
+
+    try {
+        await deleteBooking(id);
+        alert("Booking berhasil dibatalkan");
+        loadBookings();
+    } catch (err) {
+        alert(err.message);
     }
 }
 

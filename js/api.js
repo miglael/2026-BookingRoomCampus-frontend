@@ -42,11 +42,17 @@ async function handleResponse(response) {
         throw new Error(text || "Terjadi kesalahan server");
     }
 
-    // kalau kosong jangan parse json
     if (response.status === 204) return null;
 
-    return await response.json();
+    const text = await response.text();
+
+    try {
+        return JSON.parse(text); // kalau JSON → parse
+    } catch {
+        return text; // kalau string biasa → langsung return
+    }
 }
+
 
 
 // =======================================
@@ -71,9 +77,9 @@ async function login(email, password) {
 
 
 // REGISTER
-async function register(email, password) {
+async function register(fullName, email, password) {
     const response = await fetch(
-        `${BASE_URL}/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        `${BASE_URL}/auth/register?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
         {
             method: "POST"
         }
@@ -81,6 +87,9 @@ async function register(email, password) {
 
     return await handleResponse(response);
 }
+
+
+
 
 
 // =======================================
